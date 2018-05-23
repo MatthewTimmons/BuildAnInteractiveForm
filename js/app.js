@@ -1,6 +1,6 @@
 // Upon loading page, set focus to name field and hide fields
 $('#name').focus();
-$('#other-title').hide();
+$('#other-title').attr('hidden', true);
 $('#colors-js-puns').hide();
 
 // Initialize variables that will be used later
@@ -52,9 +52,7 @@ heartTheme = '<option value="tomato">Tomato (I &#9829; JS shirt only)</option><o
 // When user clicks "Other" from the Job Role select menu, a new input text field appears
 $('#title').on('change', function() {
 	var selected_option = $('#title option:selected');
-	if (selected_option.val() === 'other') {
-		$('#other-title').show();
-	}
+	$('#other-title').toggle('hidden');
 });
 
 // When user clicks on shirt design, remove all non-applicable colors
@@ -174,7 +172,9 @@ $('#credit-card div').show();
 		$('#nameErrors').show();
 	});
 	$('#name').on('blur', () => {
-		$('#nameErrors').hide();
+		if (validateName() === 0) {
+			$('#nameErrors').hide();
+		}
 	});
 
 	// Real-time messages for Email
@@ -200,7 +200,11 @@ $('#credit-card div').show();
 		$('#mailErrors').show();
 	});
 	$('#mail').on('blur', () => {
-		$('#mailErrors').hide();
+		let array = validateMail();
+		if (array === []) {
+			$('#mailErrors').hide();
+		}
+		
 	});
 
 // Prevent default if form is not filled out and give user error message describing why
@@ -213,7 +217,6 @@ $('button').on('click', (e) => {
 	if ($name === '') {
 		e.preventDefault();
 		setAlert($('#name'));
-		alert('Name must be entered');
 		$('#name').focus();
 	} 
 
@@ -224,25 +227,28 @@ $('button').on('click', (e) => {
 	if ($mail === '') {
 		e.preventDefault();
 		setAlert($('#mail'));
-		alert('Nothing entered for email address');
 		$('#mail').focus();
 	} else {
 		if (indexOfAtSymbol === $mail.length -1) {
 			e.preventDefault();
 			setAlert($('#mail'));
-			alert('email must contain domain. ex: yahoo.com, gmail.com');
 			$('#mail').focus();
 		} 
 		if (indexOfAtSymbol === 0) {
 			e.preventDefault();
 			setAlert($('#mail'));
-			alert('first character cannot be @');
+			$('#mail').focus();
 		} 
 		if (indexOfAtSymbol === -1) {
 			e.preventDefault();
 			setAlert($('#mail'));
-			alert('No @ detected');
+			$('#mail').focus();
 		} 
+		if ($mail.slice(($mail.length - 4), $mail.length) !== '.com' && $mail.slice(($mail.length - 4), $mail.length) !== '.net') {
+			e.preventDefault();
+			setAlert($('#mail'));
+			$('#mail').focus();
+		}
 	}
 
 	// Verify at least one activity is checked
@@ -251,7 +257,6 @@ $('button').on('click', (e) => {
 	if ($isBoxChecked.length === 0 || $isBoxChecked.html().indexOf('$') === ($isBoxChecked.html().length - 6)) {
 		e.preventDefault();
 		setAlert($('.activities'));
-		alert('At least one activity must be checked');
 	}
 
 	// Validate CC fields if CC is selected
